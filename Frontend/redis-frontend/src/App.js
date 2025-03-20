@@ -21,13 +21,16 @@ function StudentDashboard() {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(API_URL, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        params: { timestamp: new Date().getTime() } // ✅ Prevents caching
       });
+      console.log('Fetched Students:', response.data); // ✅ Debugging
       setStudents(response.data);
     } catch (error) {
       toast.error('Error fetching students');
     }
   };
+  
 
   useEffect(() => {
     fetchStudents();
@@ -41,19 +44,29 @@ function StudentDashboard() {
   // ✅ Add new student
   const handleAddSubmit = async (e) => {
     e.preventDefault();
+    
+    console.log('Submitting Student:', formData); // 🔍 Check form data before sending
+  
+    if (!formData.id || !formData.name || !formData.course || !formData.age || !formData.address) {
+      toast.error('Please fill in all fields!');
+      return;
+    }
+  
     try {
       const token = localStorage.getItem('token');
       await axios.post(API_URL, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
+  
       toast.success('Student added successfully!');
-      fetchStudents();
-      setFormData({ id: '', name: '', course: '', age: '', address: '' });
+      fetchStudents(); // ✅ Refresh student list
+      setFormData({ id: '', name: '', course: '', age: '', address: '' }); // ✅ Reset form
     } catch (error) {
+      console.error('Error adding student:', error.response?.data);
       toast.error('Error adding student!');
     }
-  };
+  };  
+  
 
   // ✅ Update existing student
   const handleEditSubmit = async (e) => {

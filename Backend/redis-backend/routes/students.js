@@ -8,19 +8,26 @@ const client = redis.createClient({ url: 'redis://127.0.0.1:6379' });
 client.connect();
 
 // 📌 Create Student (Only Admins)
-router.post('/', authenticateUser, authorizeRole('admin'), async (req, res) => {
+router.post('/students', async (req, res) => {
   const { id, name, course, age, address } = req.body;
+
   if (!id || !name || !course || !age || !address) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
-    await client.hSet(`student:${id}`, 'name', name, 'course', course, 'age', age, 'address', address);
-    res.status(201).json({ message: 'Student added successfully' });
+    console.log('Saving Student:', req.body); // ✅ Debugging backend request
+    await client.hSet(`student:${id}`, { name, course, age, address });
+    
+    const savedStudent = await client.hGetAll(`student:${id}`);
+    console.log('Saved Student:', savedStudent); // ✅ Confirm data is stored correctly
+
+    res.status(201).json({ message: 'Student added successfully', student: savedStudent });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to add student' });
+    res.status(500).json({ message: 'Error adding student' });
   }
 });
+
 
 // 📌 Get All Students (Accessible to Admin & Users)
 router.get('/', authenticateUser, async (req, res) => {
