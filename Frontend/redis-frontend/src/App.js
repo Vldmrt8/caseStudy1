@@ -75,7 +75,7 @@ function App() {
 
   return (
     <div className="container" style={{ textAlign: 'center' }}>
-      <h1>Student CRUD with Redis</h1>
+      <h1>Student CRUD with Reds</h1>
 
       {!isEditing ? (
         <form onSubmit={handleAddSubmit}>
