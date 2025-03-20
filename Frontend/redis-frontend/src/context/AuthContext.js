@@ -1,27 +1,29 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null); // ✅ Default value should be null
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  // Load user from localStorage on mount
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      const userData = JSON.parse(localStorage.getItem('user'));
-      setUser(userData);
+      try {
+        const userData = JSON.parse(localStorage.getItem('user'));
+        setUser(userData);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 
-  // Login function
   const login = async (username, password) => {
     try {
       const response = await axios.post('http://localhost:5000/auth/login', { username, password });
       const { token } = response.data;
-
-      // Decode token (for simplicity, we'll store user info separately)
       const userData = { username, role: JSON.parse(atob(token.split('.')[1])).role };
 
       localStorage.setItem('token', token);
@@ -33,7 +35,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout function
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -47,4 +48,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+export { AuthContext }; // ✅ Exporting correctly
 export default AuthContext;

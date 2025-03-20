@@ -1,21 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 
-import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 const API_URL = 'http://localhost:5000/students';
 
 function StudentDashboard() {
-  const { user, logout } = useContext(AuthContext);
+  const auth = useContext(AuthContext);
   const [students, setStudents] = useState([]);
 
   const fetchStudents = async () => {
@@ -30,13 +25,17 @@ function StudentDashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
+  useEffect(() => { fetchStudents(); }, []);  // ✅ Always called
+
+  if (!auth) {
+    return <div>Loading...</div>;  // ✅ Conditional check AFTER hooks
+  }
+
+  const { user, logout } = auth;
 
   return (
     <div className="container">
-      <h1>Welcome, {user?.username}</h1>
+      <h1>Welcome, {user?.username || 'Guest'}</h1>
       <button onClick={logout}>Logout</button>
       <h2>Student List</h2>
       <table border="1" align="center">

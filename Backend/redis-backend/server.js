@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
+const routes = require('./routes'); // Import routes from /routes
 const authRoutes = require('./routes/auth');
 const studentRoutes = require('./routes/students');
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Routes
+app.use('/api', routes);
 app.use('/auth', authRoutes);
 app.use('/students', studentRoutes);
 
