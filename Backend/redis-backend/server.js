@@ -33,22 +33,33 @@ client.connect()
 
 // Route to save student data
 app.post('/students', async (req, res) => {
-  const { id, name, course, age, address } = req.body;
+  const { id, firstName, middleName, lastName, presentAddress, provincialAddress, lengthStay, sex, cStatus, dob, age, pob, hea, religion, cNumber, email } = req.body;
 
   // Validate input fields
-  if (!id || !name || !course || !age || !address) {
+  if (!id || !firstName || !middleName || !lastName || !presentAddress || !provincialAddress || !lengthStay || !sex || !cStatus || !dob || !age || !pob || !hea || !religion || !cNumber || !email) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
     // Set student data in Redis (using object syntax for Redis v4 and above)
-    const studentData = { name, course, age, address };
+    const studentData = { id, firstName, middleName, lastName, presentAddress, provincialAddress, lengthStay, sex, cStatus, dob, age, pob, hea, religion, cNumber, email };
 
     // Save student data in Redis hash
-    await client.hSet(`student:${id}`, 'name', studentData.name);
-    await client.hSet(`student:${id}`, 'course', studentData.course);
+    await client.hSet(`student:${id}`, 'firstName', studentData.firstName);
+    await client.hSet(`student:${id}`, 'middleName', studentData.middleName);
+    await client.hSet(`student:${id}`, 'lastName', studentData.lastName);
+    await client.hSet(`student:${id}`, 'presentAddress', studentData.presentAddress);
+    await client.hSet(`student:${id}`, 'provincialAddress', studentData.provincialAddress);
+    await client.hSet(`student:${id}`, 'lengthStay', studentData.lengthStay);
+    await client.hSet(`student:${id}`, 'sex', studentData.sex);
+    await client.hSet(`student:${id}`, 'cStatus', studentData.cStatus);
+    await client.hSet(`student:${id}`, 'dob', studentData.dob);
     await client.hSet(`student:${id}`, 'age', studentData.age);
-    await client.hSet(`student:${id}`, 'address', studentData.address);
+    await client.hSet(`student:${id}`, 'pob', studentData.pob);
+    await client.hSet(`student:${id}`, 'hea', studentData.hea);
+    await client.hSet(`student:${id}`, 'religion', studentData.religion);
+    await client.hSet(`student:${id}`, 'cNumber', studentData.cNumber);
+    await client.hSet(`student:${id}`, 'email', studentData.email);
 
     // Respond with success message
     res.status(201).json({ message: 'Student saved successfully' });
@@ -80,9 +91,9 @@ app.get('/students', async (req, res) => {
 // Update (U)
 app.put('/students/:id', async (req, res) => {
   const id = req.params.id;
-  const { name, course, age, address } = req.body;
+  const { firstName, middleName, lastName, presentAddress, provincialAddress, lengthStay, sex, cStatus, dob, age, pob, hea, religion, cNumber, email } = req.body;
 
-  if (!name && !course && !age && !address) {
+  if (!firstName && !middleName && !lastName && !presentAddress && !provincialAddress && !lengthStay && !sex && !cStatus && !dob && !age && !pob && !hea && !religion && !cNumber && !email) {
     return res.status(400).json({ message: 'At least one field is required to update' });
   }
 
@@ -93,10 +104,21 @@ app.put('/students/:id', async (req, res) => {
     }
 
     // Update student data in Redis
-    if (name) await client.hSet(`student:${id}`, 'name', name);
-    if (course) await client.hSet(`student:${id}`, 'course', course);
+    if (firstName) await client.hSet(`student:${id}`, 'firstName', firstName);
+    if (middleName) await client.hSet(`student:${id}`, 'middleName', middleName);
+    if (lastName) await client.hSet(`student:${id}`, 'lastName', lastName);
+    if (presentAddress) await client.hSet(`student:${id}`, 'presentAddress', presentAddress);
+    if (provincialAddress) await client.hSet(`student:${id}`, 'provincialAddress', provincialAddress);
+    if (lengthStay) await client.hSet(`student:${id}`, 'lengthStay', lengthStay);
+    if (sex) await client.hSet(`student:${id}`, 'sex', sex);
+    if (cStatus) await client.hSet(`student:${id}`, 'cStatus', cStatus);
+    if (dob) await client.hSet(`student:${id}`, 'dob', dob);
     if (age) await client.hSet(`student:${id}`, 'age', age);
-    if (address) await client.hSet(`student:${id}`, 'address', address);
+    if (pob) await client.hSet(`student:${id}`, 'pob', pob);
+    if (hea) await client.hSet(`student:${id}`, 'hea', hea);
+    if (religion) await client.hSet(`student:${id}`, 'religion', religion);
+    if (cNumber) await client.hSet(`student:${id}`, 'cNumber', cNumber);
+    if (email) await client.hSet(`student:${id}`, 'email', email);
 
     res.status(200).json({ message: 'Student updated successfully' });
   } catch (error) {

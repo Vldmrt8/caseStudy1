@@ -9,15 +9,15 @@ client.connect();
 
 // 📌 Create Student (Only Admins)
 router.post('/students', async (req, res) => {
-  const { id, name, course, age, address } = req.body;
+  const { id, firstName, middleName, lastName, presentAddress, provincialAddress, lengthStay, sex, cStatus, dob, age, pob, hea, religion, cNumber, email } = req.body;
 
-  if (!id || !name || !course || !age || !address) {
+  if (!id || !firstName || !middleName || !lastName || !presentAddress || !provincialAddress || !lengthStay || !sex || !cStatus || !dob || !age || !pob || !hea || !religion || !cNumber || !email) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
     console.log('Saving Student:', req.body); // ✅ Debugging backend request
-    await client.hSet(`student:${id}`, { name, course, age, address });
+    await client.hSet(`student:${id}`, { id, firstName, middleName, lastName, presentAddress, provincialAddress, lengthStay, sex, cStatus, dob, age, pob, hea, religion, cNumber, email });
     
     const savedStudent = await client.hGetAll(`student:${id}`);
     console.log('Saved Student:', savedStudent); // ✅ Confirm data is stored correctly
@@ -43,19 +43,29 @@ router.get('/', authenticateUser, async (req, res) => {
 });
 
 // 📌 Update Student (Only Admins)
-router.put('/:id', authenticateUser, authorizeRole('admin'), async (req, res) => {
+router.put('/students/:id', authenticateUser, authorizeRole('admin'), async (req, res) => {
   const id = req.params.id;
-  const { name, course, age, address } = req.body;
+  const { firstName, middleName, lastName, presentAddress, provincialAddress, lengthStay, sex, cStatus, dob, age, pob, hea, religion, cNumber, email } = req.body;
 
   try {
     const existingStudent = await client.hGetAll(`student:${id}`);
     if (!existingStudent.name) return res.status(404).json({ message: 'Student not found' });
 
-    if (name) await client.hSet(`student:${id}`, 'name', name);
-    if (course) await client.hSet(`student:${id}`, 'course', course);
+    if (firstName) await client.hSet(`student:${id}`, 'firstName', firstName);
+    if (middleName) await client.hSet(`student:${id}`, 'middleName', middleName);
+    if (lastName) await client.hSet(`student:${id}`, 'lastName', lastName);
+    if (presentAddress) await client.hSet(`student:${id}`, 'presentAddress', presentAddress);
+    if (provincialAddress) await client.hSet(`student:${id}`, 'provincialAddress', provincialAddress);
+    if (lengthStay) await client.hSet(`student:${id}`, 'lengthStay', lengthStay);
+    if (sex) await client.hSet(`student:${id}`, 'sex', sex);
+    if (cStatus) await client.hSet(`student:${id}`, 'cStatus', cStatus);
+    if (dob) await client.hSet(`student:${id}`, 'dob', dob);
     if (age) await client.hSet(`student:${id}`, 'age', age);
-    if (address) await client.hSet(`student:${id}`, 'address', address);
-
+    if (pob) await client.hSet(`student:${id}`, 'pob', pob);
+    if (hea) await client.hSet(`student:${id}`, 'hea', hea);
+    if (religion) await client.hSet(`student:${id}`, 'religion', religion);
+    if (cNumber) await client.hSet(`student:${id}`, 'cNumber', cNumber);
+    if (email) await client.hSet(`student:${id}`, 'email', email);
     res.status(200).json({ message: 'Student updated successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to update student' });

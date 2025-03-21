@@ -16,12 +16,12 @@ const Login = () => {
     e.preventDefault();
     const result = await login(credentials.username, credentials.password);
     if (result.success) {
-      navigate('/students');  // Redirect to students page after login
+      navigate('/dashboard');  // Redirect to students page after login
     } else {
       setError(result.message);
     }
   };
-
+  
   return (
     <div className="login-container">
       <h2>Login</h2>
