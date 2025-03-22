@@ -138,8 +138,7 @@ router.put('/profile', authenticateUser, async (req, res) => {
       const hashedPassword = await bcrypt.hash(newPassword, 10);  // ✅ Hash password before saving
       await client.hSet(`user:${currentUser}`, 'password', hashedPassword);
     }
-
-    res.json({ message: 'Profile updated successfully' });
+    res.status(200).json({ message: 'Password updated successfully. Please log in again.', forceLogout: true });
   } catch (error) {
     res.status(500).json({ message: 'Error updating profile' });
   }

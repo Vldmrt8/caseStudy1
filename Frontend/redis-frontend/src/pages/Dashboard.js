@@ -37,7 +37,7 @@ const Dashboard = () => {
     { name: 'Prefer not to say', value: students.filter(student => student.sex === 'Prefer not to say').length || 0 }
   ];
   
-  const COLORS = ['#0088FE', '#FF6384', '#FFBB28'];
+  const COLORS = ['#0088FE', '#FF6384', '#FFBB28', '#32CD32'];
 
   // ✅ Calculate years stayed in residence
   const yearsStayedData = students.reduce((acc, student) => {
@@ -61,6 +61,29 @@ const Dashboard = () => {
     name: group.range,
     value: students.filter(student => student.age >= group.min && student.age <= group.max).length
   }));
+
+  // ✅ Educational Attainment Distribution Based on Age Groups
+  const educationLevels = [
+    'No Grade Completed',
+    'Elementary Graduate',
+    'Highschool Graduate',
+    'Technical Vocational Graduate',
+    'College Graduate',
+    'Masters Graduate',
+    'Doctorate Graduate'
+  ];
+
+  // Count each education level within age groups
+  const educationByAge = ageGroups.map(group => {
+    const groupStudents = students.filter(student => student.age >= group.min && student.age <= group.max);
+    
+    const counts = educationLevels.reduce((acc, level) => {
+      acc[level] = groupStudents.filter(student => student.hea === level).length;
+      return acc;
+    }, {});
+
+    return { ageRange: group.range, ...counts };
+  });
 
   return (
     <div>
@@ -106,6 +129,21 @@ const Dashboard = () => {
           <Tooltip />
           <Legend />
         </PieChart>
+      </ResponsiveContainer>
+
+      {/* ✅ Educational Attainment by Age Group (Bar Chart) */}
+      <h3>Educational Attainment Distribution by Age Group</h3>
+      <ResponsiveContainer width="80%" height={400}>
+        <BarChart data={educationByAge}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="ageRange" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          {educationLevels.map((level, index) => (
+            <Bar key={level} dataKey={level} fill={COLORS[index % COLORS.length]} stackId="a" />
+          ))}
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );

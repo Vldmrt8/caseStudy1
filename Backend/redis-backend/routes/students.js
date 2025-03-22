@@ -6,9 +6,9 @@ const router = express.Router();
 const client = redis.createClient({ url: 'redis://127.0.0.1:6379' });
 
 client.connect();
-
+/*
 // 📌 Create Student (Only Admins)
-router.post('/students', async (req, res) => {
+router.post('/students', authenticateUser, authorizeRole('admin'), async (req, res) => {
   const { id, firstName, middleName, lastName, presentAddress, provincialAddress, lengthStay, sex, cStatus, dob, age, pob, hea, religion, cNumber, email } = req.body;
 
   if (!id || !firstName || !middleName || !lastName || !presentAddress || !provincialAddress || !lengthStay || !sex || !cStatus || !dob || !age || !pob || !hea || !religion || !cNumber || !email) {
@@ -82,5 +82,5 @@ router.delete('/:id', authenticateUser, authorizeRole('admin'), async (req, res)
     res.status(500).json({ message: 'Failed to delete student' });
   }
 });
-
+*/
 module.exports = router;

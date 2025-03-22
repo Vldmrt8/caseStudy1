@@ -1,5 +1,6 @@
+import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { AuthProvider, AuthContext } from './context/AuthContext';
+import { AuthContext } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,24 +14,47 @@ import Form from './pages/Form';
 import Masterlist from './pages/Masterlist';
 
 function App() {
+  const auth = useContext(AuthContext); // ✅ Get AuthContext safely
+  const user = auth?.user || null; // ✅ Prevents destructuring error
+
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
-        <AuthProvider>
-          <Router>
-            <nav>
+      <Router>
+        <nav>
+          {/* Show Login & Register only if the user is NOT logged in */}
+          {!user && (
+            <>
               <Link to="/login">Login</Link>
               <Link to="/register">Register</Link>
+            </>
+          )}
+
+          {/* Show other links only if user is logged in */}
+          {user && (
+            <>
               <Link to="/form">Form</Link>
               <Link to="/masterlist">Masterlist</Link>
               <Link to="/dashboard">Dashboard</Link>
-              <Link to="/manage-users">Manage Users</Link>
+              {user.role === 'admin' && <Link to="/manage-users">Manage Users</Link>}
               <Link to="/profile">Profile</Link>
-              <Link to="/logs">Activity Logs</Link>
-            </nav>
-            <Routes>
+              {user.role === 'admin' && <Link to="/logs">Activity Logs</Link>}
+            </>
+          )}
+        </nav>
+
+        <Routes>
+          {/* Show Login & Register pages only when no user is logged in */}
+          {!user && (
+            <>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+            </>
+          )}
+
+          {/* Protect Routes */}
+          {user && (
+            <>
               <Route
                 path="/dashboard"
                 element={
@@ -55,30 +79,40 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              {user.role === 'admin' && (
+                <Route
+                  path="/manage-users"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ManageUsers />
+                    </ProtectedRoute>
+                  }
+                />
+              )}
               <Route
-                path="/manage-users"
+                path="/profile"
                 element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <ManageUsers />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/profile" element={
                   <ProtectedRoute allowedRoles={['admin', 'user']}>
                     <Profile />
                   </ProtectedRoute>
-                } 
+                }
               />
-              <Route path="/logs" element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <ActivityLogs />
-                  </ProtectedRoute>
-                } 
-              />
-            </Routes>
-          </Router>
-        </AuthProvider>
-      </>
+              {user.role === 'admin' && (
+                <Route
+                  path="/logs"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ActivityLogs />
+                    </ProtectedRoute>
+                  }
+                />
+              )}
+            </>
+          )}
+        </Routes>
+      </Router>
+    </>
   );
 }
+
 export default App;
