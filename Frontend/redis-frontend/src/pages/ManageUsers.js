@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageUsers = () => {
   const { user } = useContext(AuthContext);
@@ -32,7 +33,8 @@ const ManageUsers = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success(`Updated ${username} to ${newRole}`);
-      fetchUsers(); // Refresh the list
+      // ✅ Delay state update so the toast can appear first
+        setTimeout(() => fetchUsers(), 300);
     } catch (error) {
       toast.error('Error updating user role');
     }
