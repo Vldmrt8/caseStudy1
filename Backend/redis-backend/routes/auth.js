@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const redis = require('redis');
+const { authenticateUser, authorizeRole } = require('../middlewares/auth');
 require('dotenv').config();
 
 const router = express.Router();
@@ -63,6 +64,57 @@ router.post('/login', async (req, res) => {
     res.json({ token });
   } catch (error) {
     res.status(500).json({ message: 'Login error' });
+  }
+});
+
+// 🔹 Fetch all users (Only Admins)
+router.get('/users', authenticateUser, authorizeRole('admin'), async (req, res) => {
+  try {
+    const keys = await client.keys('user:*');
+    const users = await Promise.all(
+      keys.map(async (key) => ({
+        username: key.split(':')[1],
+        role: await client.hGet(key, 'role')
+      }))
+    );
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching users' });
+  }
+});
+
+// 🔹 Update a user's role (Only Admins)
+router.put('/users/:username', authenticateUser, authorizeRole('admin'), async (req, res) => {
+  const { username } = req.params;
+  const { role } = req.body;
+
+  if (!['admin', 'user'].includes(role)) {
+    return res.status(400).json({ message: 'Invalid role' });
+  }
+
+  try {
+    const exists = await client.exists(`user:${username}`);
+    if (!exists) return res.status(404).json({ message: 'User not found' });
+
+    await client.hSet(`user:${username}`, 'role', role);
+    res.json({ message: 'User role updated' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating role' });
+  }
+});
+
+// 🔹 Delete a user (Only Admins)
+router.delete('/users/:username', authenticateUser, authorizeRole('admin'), async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const exists = await client.exists(`user:${username}`);
+    if (!exists) return res.status(404).json({ message: 'User not found' });
+
+    await client.del(`user:${username}`);
+    res.json({ message: 'User deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting user' });
   }
 });
 

@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import ManageUsers from './pages/ManageUsers';
 
 const API_URL = 'http://localhost:5000/students';
 
@@ -268,6 +269,7 @@ function App() {
           <Link to="/register">Register</Link>
           <Link to="/students">Students</Link>
           <Link to="/dashboard">Dashboard</Link>
+          <Link to="/manage-users">Manage Users</Link>
         </nav>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -285,6 +287,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin', 'user']}>
                 <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manage-users"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <ManageUsers />
               </ProtectedRoute>
             }
           />
